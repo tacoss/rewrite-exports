@@ -11,6 +11,11 @@
     "export",
     "esm"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tacoss/rewrite-exports"
+  },
+  "bugs": "https://github.com/tacoss/rewrite-exports/issues",
   "author": "Alvaro Cabrera <pateketrueke@gmail.com>",
   "license": "MIT"
 }

@@ -1,5 +1,5 @@
 
-# rewrite-exports [![Build Status](https://travis-ci.org/pateketrueke/rewrite-exports.svg?branch=master)](https://travis-ci.org/pateketrueke/rewrite-exports)
+# rewrite-exports [![Build Status](https://travis-ci.org/tacoss/rewrite-exports.svg?branch=master)](https://travis-ci.org/tacoss/rewrite-exports)
 
 Transforms various `export` statements into `module.exports` definitions, using regular expressions.
 
