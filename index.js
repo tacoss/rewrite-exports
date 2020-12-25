@@ -67,7 +67,7 @@ function replaceExport(ctx, fn) {
       tokens = tokens.replace(RE_AS, '$2: $1');
     }
 
-    if (tokens.charAt() === '{') {
+    if (!def && tokens.charAt() === '{') {
       return `${left}Object.assign(${ctx}, ${tokens})`;
     }
 

@@ -31,6 +31,12 @@ const supported = `
 
   export { default } from './src';
 
+  export default {
+    GET(ctx) {
+      doCall(ctx);
+    }
+  };
+
 `;
 
 const expected = `
@@ -63,6 +69,12 @@ const expected = `
   module.exports = require("./src");
 
   module.exports = require("./src");
+
+  module.exports = {
+    GET(ctx) {
+      doCall(ctx);
+    }
+  };
 
 `;
 
