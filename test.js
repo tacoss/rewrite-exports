@@ -2,6 +2,9 @@ const rExports = require('.');
 
 const supported = `
 
+  export const stuff = 'red';
+  export let x = false;
+
   export { name1, name2, nameN };
   export { variable1 as name1, variable2 as name2, nameN };
 
@@ -14,7 +17,11 @@ const supported = `
   export class ClassName {
   }
 
-  export default expression;
+  export { name1, name2, nameN } from './src';
+  export { import1 as name1, import2 as name2, nameN } from './src';
+
+  export { default as OK } from './src';
+
   export default function () {  }
   export default function name1() {  }
 
@@ -23,19 +30,19 @@ const supported = `
   export * from './src';
 
   export { default } from './src';
-  export { default as OK } from './src';
-  export { name1, name2, nameN } from './src';
-  export { import1 as name1, import2 as name2, nameN } from './src';
 
 `;
 
 const expected = `
 
-  module.exports = { name1, name2, nameN };
-  module.exports = { name1: variable1, name2: variable2, nameN };
+  const stuff = 'red'; Object.assign(module.exports, { stuff });
+  let x = false; Object.assign(module.exports, { x });
 
-  let name1, name2, nameN; module.exports = { name1, name2, nameN };
-  let name1 = name2 = nameN; module.exports = { name1, name2, nameN };
+  Object.assign(module.exports, { name1, name2, nameN });
+  Object.assign(module.exports, { name1: variable1, name2: variable2, nameN });
+
+  let name1, name2, nameN; Object.assign(module.exports, { name1, name2, nameN });
+  let name1 = name2 = nameN; Object.assign(module.exports, { name1, name2 });
 
   module.exports.FunctionName = function FunctionName() {
   }
@@ -43,7 +50,11 @@ const expected = `
   module.exports.ClassName = class ClassName {
   }
 
-  module.exports = expression;
+  const { name1, name2, nameN } = require("./src"); Object.assign(module.exports, { name1, name2, nameN });
+  const { import1: name1, import2: name2, nameN } = require("./src"); Object.assign(module.exports, { name1, name2, nameN });
+
+  module.exports.OK = require("./src");
+
   module.exports = function () {  }
   module.exports = function name1() {  }
 
@@ -52,9 +63,6 @@ const expected = `
   module.exports = require("./src");
 
   module.exports = require("./src");
-  module.exports.OK = require("./src");
-  const { name1, name2, nameN } = require("./src"); module.exports = { name1, name2, nameN };
-  const { import1: name1, import2: name2, nameN } = require("./src"); module.exports = { name1, name2, nameN };
 
 `;
 

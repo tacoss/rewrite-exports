@@ -16,7 +16,15 @@ function replaceExport(ctx, fn) {
 
     if (symbols) {
       if (symbols[2] === 'let' || symbols[2] === 'const') {
-        return `${left}${tokens}; ${ctx} = { ${symbols[3].split(RE_EQ).join(', ')} }`;
+        let vars = symbols[3].split(RE_EQ);
+
+        if (vars.length !== 1) {
+          vars = vars.slice(0, vars.length - 1);
+        }
+
+        vars = vars.join(', ');
+
+        return `${left}${tokens}; Object.assign(${ctx}, { ${vars} })`;
       }
 
       if (!symbols[1]) {
@@ -46,7 +54,7 @@ function replaceExport(ctx, fn) {
         return `${prefix} = ${req}`;
       }
 
-      return `${left}const ${tokens}; ${ctx} = ${vars}`;
+      return `${left}const ${tokens}; Object.assign(${ctx}, ${vars})`;
     }
 
     if (def) {
@@ -57,6 +65,10 @@ function replaceExport(ctx, fn) {
       }
     } else {
       tokens = tokens.replace(RE_AS, '$2: $1');
+    }
+
+    if (tokens.charAt() === '{') {
+      return `${left}Object.assign(${ctx}, ${tokens})`;
     }
 
     return `${prefix} = ${tokens}`;
