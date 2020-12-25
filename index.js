@@ -5,9 +5,10 @@ const RE_DF = /\bdefault(\s+as\s+(\w+))?\b/i;
 const RE_AS = /\b(\w+)\s+as\s+(\w+)\b/gi;
 const RE_EQ = /\s*=\s*/;
 
-function replaceExport(ctx, fn) {
+function replaceExport(ctx, fn, x) {
   ctx = ctx || 'module.exports';
   fn = fn || 'require';
+  x = x || 'Object.assign';
 
   return (_, left, tokens) => {
     let prefix = `${left}${ctx}`;
@@ -24,7 +25,7 @@ function replaceExport(ctx, fn) {
 
         vars = vars.join(', ');
 
-        return `${left}${tokens}; Object.assign(${ctx}, { ${vars} })`;
+        return `${left}${tokens}; ${x}(${ctx}, { ${vars} })`;
       }
 
       if (!symbols[1]) {
@@ -54,7 +55,7 @@ function replaceExport(ctx, fn) {
         return `${prefix} = ${req}`;
       }
 
-      return `${left}const ${tokens}; Object.assign(${ctx}, ${vars})`;
+      return `${left}const ${tokens}; ${x}(${ctx}, ${vars})`;
     }
 
     if (def) {
@@ -68,11 +69,11 @@ function replaceExport(ctx, fn) {
     }
 
     if (!def && tokens.charAt() === '{') {
-      return `${left}Object.assign(${ctx}, ${tokens})`;
+      return `${left}${x}(${ctx}, ${tokens})`;
     }
 
     return `${prefix} = ${tokens}`;
   };
 }
 
-module.exports = (code, ctx, fn) => code.replace(RE_EXPORT, replaceExport(ctx, fn));
+module.exports = (code, ctx, fn, x) => code.replace(RE_EXPORT, replaceExport(ctx, fn, x));

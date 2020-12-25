@@ -30,7 +30,7 @@ rExports('export { default } from "./src";', 'foo', 'bar');
 
 ## API
 
-### rExports(input[, ctx[, fn]])
+### rExports(input[, ctx[, fn[, x]]])
 
 #### input
 Type: `String`
@@ -42,8 +42,12 @@ The `export` statement(s) or the code containing `export` statement(s).
 #### ctx
 Type: `String`
 
-Custom variable name for exporting symbols, default is `module.exports`.
+Variable name for exporting symbols, default is `module.exports`.
 
 #### fn
 Type: `String`
-Custom function name when re-exporting symbols, default is `require`.
+Function name when re-exporting symbols, default is `require`.
+
+#### x
+Type: `String`
+Function name for extending from symbols, default is `Object.assign`.
