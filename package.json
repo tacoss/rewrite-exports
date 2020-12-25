@@ -1,6 +1,6 @@
 {
   "name": "rewrite-exports",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Rewrite `export` statements as `module.exports`s; via RegExp",
   "main": "index.js",
   "scripts": {
