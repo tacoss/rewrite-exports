@@ -5,57 +5,62 @@ const RE_DF = /\bdefault(\s+as\s+(\w+))?\b/i;
 const RE_AS = /\b(\w+)\s+as\s+(\w+)\b/gi;
 const RE_EQ = /\s*=\s*/;
 
-function replaceExport(_, left, tokens) {
-  let prefix = `${left}module.exports`;
+function replaceExport(ctx, fn) {
+  ctx = ctx || 'module.exports';
+  fn = fn || 'require';
 
-  const symbols = tokens.match(RE_KEYWORD);
+  return (_, left, tokens) => {
+    let prefix = `${left}${ctx}`;
 
-  if (symbols) {
-    if (symbols[2] === 'let' || symbols[2] === 'const') {
-      return `${left}${tokens}; module.exports = { ${symbols[3].split(RE_EQ).join(', ')} }`;
+    const symbols = tokens.match(RE_KEYWORD);
+
+    if (symbols) {
+      if (symbols[2] === 'let' || symbols[2] === 'const') {
+        return `${left}${tokens}; ${ctx} = { ${symbols[3].split(RE_EQ).join(', ')} }`;
+      }
+
+      if (!symbols[1]) {
+        prefix += `.${symbols[4]}`;
+      }
     }
 
-    if (!symbols[1]) {
-      prefix += `.${symbols[4]}`;
-    }
-  }
+    const def = tokens.match(RE_DF);
 
-  const def = tokens.match(RE_DF);
+    if (tokens.match(RE_FROM)) {
+      const vars = tokens.replace(RE_AS, '$2').replace(RE_FROM, '').trim();
 
-  if (tokens.match(RE_FROM)) {
-    const vars = tokens.replace(RE_AS, '$2').replace(RE_FROM, '').trim();
+      tokens = tokens.replace(RE_FROM, `= ${fn}("$2")`);
+      tokens = tokens.replace(RE_AS, '$1: $2');
 
-    tokens = tokens.replace(RE_FROM, '= require("$2")');
-    tokens = tokens.replace(RE_AS, '$1: $2');
+      const req = tokens.split('=').pop().trim();
 
-    const req = tokens.split('=').pop().trim();
+      if (vars === '*') {
+        return `${prefix} = ${req}`;
+      }
 
-    if (vars === '*') {
-      return `${prefix} = ${req}`;
+      if (def) {
+        if (def[2]) {
+          prefix += `.${def[2]}`;
+        }
+
+        return `${prefix} = ${req}`;
+      }
+
+      return `${left}const ${tokens}; ${ctx} = ${vars}`;
     }
 
     if (def) {
-      if (def[2]) {
-        prefix += `.${def[2]}`;
+      if (symbols || !tokens.match(RE_AS)) {
+        tokens = tokens.replace(RE_DF, '').trim();
+      } else {
+        tokens = tokens.match(RE_AS)[0].split(' ').shift();
       }
-
-      return `${prefix} = ${req}`;
-    }
-
-    return `${left}const ${tokens}; module.exports = ${vars}`;
-  }
-
-  if (def) {
-    if (symbols || !tokens.match(RE_AS)) {
-      tokens = tokens.replace(RE_DF, '').trim();
     } else {
-      tokens = tokens.match(RE_AS)[0].split(' ').shift();
+      tokens = tokens.replace(RE_AS, '$2: $1');
     }
-  } else {
-    tokens = tokens.replace(RE_AS, '$2: $1');
-  }
 
-  return `${prefix} = ${tokens}`;
+    return `${prefix} = ${tokens}`;
+  };
 }
 
-module.exports = code => code.replace(RE_EXPORT, replaceExport);
+module.exports = (code, ctx, fn) => code.replace(RE_EXPORT, replaceExport(ctx, fn));

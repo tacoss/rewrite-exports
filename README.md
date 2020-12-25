@@ -22,15 +22,15 @@ rExports('export default 42');
 rExports('export default function () {  }');
 //=> module.exports = function () {  }
 
-rExports('export { default } from "./src";');
-//=> module.exports = require("./src");
+rExports('export { default } from "./src";', 'foo', 'bar');
+//=> foo = bar("./src");
 ```
 
 > Examine the `test.js` file to see all supported variations.
 
 ## API
 
-### rExports(input)
+### rExports(input[, ctx[, fn]])
 
 #### input
 Type: `String`
@@ -38,3 +38,12 @@ Type: `String`
 The `export` statement(s) or the code containing `export` statement(s).
 
 > See [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export) for valid `export` statement syntax.
+
+#### ctx
+Type: `String`
+
+Custom variable name for exporting symbols, default is `module.exports`.
+
+#### fn
+Type: `String`
+Custom function name when re-exporting symbols, default is `require`.
