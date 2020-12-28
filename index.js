@@ -42,7 +42,7 @@ function replaceExport(ctx, fn, x) {
     if (tokens.match(RE_FROM)) {
       const vars = tokens.replace(RE_AS, '$2').replace(RE_FROM, '').trim();
 
-      tokens = tokens.replace(RE_FROM, `= ${fn}("$2")`);
+      tokens = tokens.replace(RE_FROM, `= ${fn.replace(/[$]/g, '$&$&')}("$2")`);
       tokens = tokens.replace(RE_AS, '$1: $2');
 
       const req = tokens.split('=').pop().trim();
