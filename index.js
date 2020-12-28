@@ -28,6 +28,10 @@ function replaceExport(ctx, fn, x) {
         return `${left}${tokens}; ${x}(${ctx}, { ${vars} })`;
       }
 
+      if (symbols[2] === 'class' || symbols[2] === 'function') {
+        prefix = prefix.replace(left, `${left}const ${symbols[3].split(/[({\s]+/)[0]} = `);
+      }
+
       if (!symbols[1]) {
         prefix += `.${symbols[4]}`;
       }

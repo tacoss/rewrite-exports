@@ -50,10 +50,10 @@ const expected = `
   let name1, name2, nameN; Object.assign(module.exports, { name1, name2, nameN });
   let name1 = name2 = nameN; Object.assign(module.exports, { name1, name2 });
 
-  module.exports.FunctionName = function FunctionName() {
+  const FunctionName = module.exports.FunctionName = function FunctionName() {
   }
 
-  module.exports.ClassName = class ClassName {
+  const ClassName = module.exports.ClassName = class ClassName {
   }
 
   const { name1, name2, nameN } = require("./src"); Object.assign(module.exports, { name1, name2, nameN });
@@ -62,7 +62,7 @@ const expected = `
   module.exports.OK = require("./src");
 
   module.exports = function () {  }
-  module.exports = function name1() {  }
+  const name1 = module.exports = function name1() {  }
 
   module.exports = name1;
 
