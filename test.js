@@ -78,8 +78,10 @@ const expected = `
 
 `;
 
-if (rExports(supported) !== expected) {
+const args = [supported];
+
+if (rExports(...args) !== expected) {
   process.stderr.write('\r[rewrite-exports] Failed test!\n');
-  process.stderr.write(rExports(supported));
+  process.stderr.write(rExports(...args));
   process.exit(1);
 }

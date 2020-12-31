@@ -5,7 +5,7 @@ const RE_DF = /\bdefault(\s+as\s+(\w+))?\b/i;
 const RE_AS = /\b(\w+)\s+as\s+(\w+)\b/gi;
 const RE_EQ = /\s*=\s*/;
 
-function replaceExport(ctx, fn, x) {
+function replaceExport(ctx, fn, x, f) {
   ctx = ctx || 'module.exports';
   fn = fn || 'require';
   x = x || 'Object.assign';
@@ -23,9 +23,7 @@ function replaceExport(ctx, fn, x) {
           vars = vars.slice(0, vars.length - 1);
         }
 
-        vars = vars.join(', ');
-
-        return `${left}${tokens}; ${x}(${ctx}, { ${vars} })`;
+        return `${left}${tokens}; ${symbols[2] === 'let' && f ? f(vars, ctx, fn, x) : `${x}(${ctx}, { ${vars.join(', ')} })`}`;
       }
 
       if (symbols[2] === 'class' || symbols[2] === 'function') {
@@ -80,4 +78,4 @@ function replaceExport(ctx, fn, x) {
   };
 }
 
-module.exports = (code, ctx, fn, x) => code.replace(RE_EXPORT, replaceExport(ctx, fn, x));
+module.exports = (code, ctx, fn, x, i) => code.replace(RE_EXPORT, replaceExport(ctx, fn, x, i));
