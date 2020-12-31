@@ -5,6 +5,11 @@ const RE_DF = /\bdefault(\s+as\s+(\w+))?\b/i;
 const RE_AS = /\b(\w+)\s+as\s+(\w+)\b/gi;
 const RE_EQ = /\s*=\s*/;
 
+function allVars(chunks) {
+  if (typeof chunks === 'string') return allVars(chunks.replace(/{|}/g, '').split(/\s*,\s*/).map(x => x.trim()));
+  return chunks.reduce((memo, text) => memo.concat(text.split(/\s*,\s*/).map(x => x.trim())), []);
+}
+
 function replaceExport(ctx, fn, x, f) {
   ctx = ctx || 'module.exports';
   fn = fn || 'require';
@@ -23,7 +28,7 @@ function replaceExport(ctx, fn, x, f) {
           vars = vars.slice(0, vars.length - 1);
         }
 
-        return `${left}${tokens}; ${symbols[2] === 'let' && f ? f(vars, ctx, fn, x) : `${x}(${ctx}, { ${vars.join(', ')} })`}`;
+        return `${left}${tokens}; ${symbols[2] === 'let' && f ? f('let', allVars(vars), ctx, fn, x) : `${x}(${ctx}, { ${vars.join(', ')} })`}`;
       }
 
       if (symbols[2] === 'class' || symbols[2] === 'function') {
@@ -57,7 +62,7 @@ function replaceExport(ctx, fn, x, f) {
         return `${prefix} = ${req}`;
       }
 
-      return `${left}const ${tokens}; ${x}(${ctx}, ${vars})`;
+      return `${left}const ${tokens}; ${f ? f('const', allVars(vars), ctx, fn, x) : `${x}(${ctx}, ${vars})`}`;
     }
 
     if (def) {
