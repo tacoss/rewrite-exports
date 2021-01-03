@@ -1,6 +1,12 @@
+const vm = require('vm');
+const expect = require('expect');
 const rExports = require('.');
 
 const supported = `
+
+  export const complex = {
+    value: 'OSOM',
+  };
 
   export const stuff = 'red';
   export let x = false;
@@ -8,8 +14,8 @@ const supported = `
   export { name1, name2, nameN };
   export { variable1 as name1, variable2 as name2, nameN };
 
-  export let name1, name2, nameN;
-  export let name1 = name2 = nameN;
+  export let let1, let2, letN;
+  export let other1 = other2 = otherN;
 
   export function FunctionName() {
   }
@@ -17,15 +23,15 @@ const supported = `
   export class ClassName {
   }
 
-  export { name1, name2, nameN } from './src';
-  export { import1 as name1, import2 as name2, nameN } from './src';
+  export { var1, var2, varN } from './src';
+  export { import1 as extra1, import2 as extra2, extraN } from './src';
 
   export { default as OK } from './src';
 
   export default function () {  }
-  export default function name1() {  }
+  export default function func1() {  }
 
-  export { name1 as default };
+  export { def1 as default };
 
   export * from './src';
 
@@ -41,14 +47,18 @@ const supported = `
 
 const expected = `
 
-  const stuff = 'red'; Object.assign(module.exports, { stuff });
-  let x = false; Object.assign(module.exports, { x });
+  const complex = module.exports.complex = {
+    value: 'OSOM',
+  };
+
+  const stuff = module.exports.stuff = 'red';
+  let x = module.exports.x = false;
 
   Object.assign(module.exports, { name1, name2, nameN });
   Object.assign(module.exports, { name1: variable1, name2: variable2, nameN });
 
-  let name1, name2, nameN; Object.assign(module.exports, { name1, name2, nameN });
-  let name1 = name2 = nameN; Object.assign(module.exports, { name1, name2 });
+  let let1, let2, letN; Object.assign(module.exports, { let1, let2, letN });
+  let other1 = module.exports.other1 = other2 = module.exports.other2 = otherN;
 
   const FunctionName = module.exports.FunctionName = function FunctionName() {
   }
@@ -56,15 +66,15 @@ const expected = `
   const ClassName = module.exports.ClassName = class ClassName {
   }
 
-  const { name1, name2, nameN } = require("./src"); Object.assign(module.exports, { name1, name2, nameN });
-  const { import1: name1, import2: name2, nameN } = require("./src"); Object.assign(module.exports, { name1, name2, nameN });
+  const { var1, var2, varN } = require("./src"); Object.assign(module.exports, { var1, var2, varN });
+  const { import1: extra1, import2: extra2, extraN } = require("./src"); Object.assign(module.exports, { extra1, extra2, extraN });
 
   module.exports.OK = require("./src");
 
   module.exports = function () {  }
-  const name1 = module.exports = function name1() {  }
+  const func1 = module.exports = function func1() {  }
 
-  module.exports = name1;
+  module.exports = def1;
 
   module.exports = require("./src");
 
@@ -80,8 +90,34 @@ const expected = `
 
 const args = [supported];
 
-if (rExports(...args) !== expected) {
-  process.stderr.write('\r[rewrite-exports] Failed test!\n');
-  process.stderr.write(rExports(...args));
-  process.exit(1);
+async function main() {
+  expect(rExports(...args)).toEqual(expected);
+
+  const env = {
+    require: () => env,
+    module: {},
+    def1: null,
+    name1: null,
+    name2: null,
+    nameN: null,
+    otherN: null,
+    variable1: null,
+    variable2: null,
+  };
+
+  const o = [];
+  const d = {};
+  Object.defineProperty(env.module, 'exports', {
+    get: () => d,
+    set: v => { o.push(v); },
+  });
+
+  await vm.runInNewContext(expected, env);
+  expect(Object.keys(d).length).toEqual(20);
+  expect(o.length).toEqual(6);
 }
+
+main().catch(e => {
+  console.log(e.matcherResult ?  e.matcherResult.message() : e.message);
+  process.exit(1);
+});

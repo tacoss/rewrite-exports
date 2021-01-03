@@ -23,12 +23,18 @@ function replaceExport(ctx, fn, x, f) {
     if (symbols) {
       if (symbols[2] === 'let' || symbols[2] === 'const') {
         let vars = symbols[3].split(RE_EQ);
+        let last = '';
 
         if (vars.length !== 1) {
+          last = vars[vars.length - 1];
           vars = vars.slice(0, vars.length - 1);
         }
 
-        return `${left}${tokens}; ${symbols[2] === 'let' && f ? f('let', allVars(vars), ctx, fn, x) : `${x}(${ctx}, { ${vars.join(', ')} })`}`;
+        if (!symbols[3].includes('=')) {
+          return `${left}${tokens}; ${symbols[2] === 'let' && f ? f('let', allVars(vars), ctx, fn, x) : `${x}(${ctx}, { ${vars.join(', ')} })`}`;
+        }
+
+        return `${left}${symbols[2]} ${vars.map(x => `${x} = ${ctx}.${x}`).join(' = ')} = ${last}`;
       }
 
       if (symbols[2] === 'class' || symbols[2] === 'function') {
