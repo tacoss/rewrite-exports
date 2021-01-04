@@ -34,6 +34,10 @@ function replaceExport(ctx, fn, x, f) {
           return `${left}${tokens}; ${symbols[2] === 'let' && f ? f('let', allVars(vars), ctx, fn, x) : `${x}(${ctx}, { ${vars.join(', ')} })`}`;
         }
 
+        if (vars[0].includes(',')) {
+          vars = vars[0].split(/\s*,\s*/);
+        }
+
         return `${left}${symbols[2]} ${vars.map(x => `${x} = ${ctx}.${x}`).join(' = ')} = ${last}`;
       }
 
