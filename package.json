@@ -11,6 +11,9 @@
     "export",
     "esm"
   ],
+  "files": [
+    "index.js"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/tacoss/rewrite-exports"
