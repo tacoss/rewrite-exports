@@ -10,6 +10,10 @@ function allVars(chunks) {
   return chunks.reduce((memo, text) => memo.concat(text.split(/\s*,\s*/).map(x => x.trim())), []);
 }
 
+function mapVars(tokens) {
+  return tokens.replace(/[{\s}]+/g, '').split(',').reduce((memo, k) => Object.assign(memo, { [k.split(':')[0]]: k.split(':')[1] }), {});
+}
+
 function replaceExport(ctx, fn, x, f) {
   ctx = ctx || 'module.exports';
   fn = fn || 'require';
@@ -86,7 +90,7 @@ function replaceExport(ctx, fn, x, f) {
     }
 
     if (!def && tokens.charAt() === '{') {
-      return `${left}${x}(${ctx}, ${tokens})`;
+      return `${left}${f ? f('object', mapVars(tokens), ctx, fn, x) : `${x}(${ctx}, ${tokens})`}`;
     }
 
     return `${prefix} = ${tokens}`;
