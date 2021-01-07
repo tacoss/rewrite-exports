@@ -45,6 +45,11 @@ const supported = `
 
   export let a,b,c=0;
 
+  let cssClass;
+  export{cssClass as class}
+
+  exported
+
 `;
 
 const expected = `
@@ -90,6 +95,11 @@ const expected = `
 
   let a = module.exports.a = b = module.exports.b = c = module.exports.c = 0;
 
+  let cssClass;
+  Object.assign(module.exports, {class: cssClass})
+
+  exported
+
 `;
 
 const args = [supported];
@@ -105,6 +115,7 @@ async function main() {
     name2: null,
     nameN: null,
     otherN: null,
+    exported: null,
     variable1: null,
     variable2: null,
   };
@@ -117,7 +128,7 @@ async function main() {
   });
 
   await vm.runInNewContext(expected, env);
-  expect(Object.keys(d).length).toEqual(23);
+  expect(Object.keys(d).length).toEqual(24);
   expect(o.length).toEqual(6);
 }
 
