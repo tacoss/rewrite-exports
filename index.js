@@ -1,4 +1,4 @@
-const RE_KEYWORD = /(\bdefault\s+)?\b(let|const|class|function)\s+((\w+)(.*))$/i;
+const RE_KEYWORD = /(\bdefault\s+)?\b(let|const|class|function)\s+([$\s\d\w,.=]+)([\s\S]*?)$/i;
 const RE_EXPORT = /^(\s*)export(?!\w)\s*([^\n;]*)/gmi;
 const RE_FROM = /\bfrom\s+(["'])([^"']*)\1/gi;
 const RE_DF = /\bdefault(\s+as\s+(\w+))?\b/i;
@@ -26,7 +26,7 @@ function replaceExport(ctx, fn, x, f) {
 
     if (symbols) {
       if (symbols[2] === 'let' || symbols[2] === 'const') {
-        let vars = symbols[3].split(RE_EQ);
+        let vars = symbols[3].split(RE_EQ).filter(Boolean);
         let last = '';
 
         if (vars.length !== 1) {
@@ -42,7 +42,7 @@ function replaceExport(ctx, fn, x, f) {
           vars = vars[0].split(/\s*,\s*/);
         }
 
-        return `${left}${symbols[2]} ${vars.map(x => `${x} = ${ctx}.${x}`).join(' = ')} = ${last}`;
+        return `${left}${symbols[2]} ${vars.map(x => `${x} = ${ctx}.${x}`).join(' = ')} = ${last}${symbols[4]}`;
       }
 
       if (symbols[2] === 'class' || symbols[2] === 'function') {
@@ -50,7 +50,7 @@ function replaceExport(ctx, fn, x, f) {
       }
 
       if (!symbols[1]) {
-        prefix += `.${symbols[4]}`;
+        prefix += `.${symbols[3].trim()}`;
       }
     }
 
@@ -62,7 +62,7 @@ function replaceExport(ctx, fn, x, f) {
       tokens = tokens.replace(RE_FROM, `= ${fn.replace(/[$]/g, '$&$&')}("$2")`);
       tokens = tokens.replace(RE_AS, '$1: $2');
 
-      const req = tokens.split('=').pop().trim();
+      const req = tokens.split(RE_EQ).pop().trim();
 
       if (vars === '*') {
         return `${prefix} = ${req}`;

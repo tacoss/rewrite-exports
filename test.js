@@ -50,6 +50,8 @@ const supported = `
 
   exported
 
+  export const html = '<a href="#">OK</a>';
+
 `;
 
 const expected = `
@@ -100,6 +102,8 @@ const expected = `
 
   exported
 
+  const html = module.exports.html = '<a href="#">OK</a>';
+
 `;
 
 const args = [supported];
@@ -128,7 +132,7 @@ async function main() {
   });
 
   await vm.runInNewContext(expected, env);
-  expect(Object.keys(d).length).toEqual(24);
+  expect(Object.keys(d).length).toEqual(25);
   expect(o.length).toEqual(6);
 }
 
