@@ -108,7 +108,7 @@ const expected = `
 
 const args = [supported];
 
-async function main() {
+function main() {
   expect(rExports(...args)).toEqual(expected);
 
   const env = {
@@ -131,12 +131,14 @@ async function main() {
     set: v => { o.push(v); },
   });
 
-  await vm.runInNewContext(expected, env);
+  vm.runInNewContext(expected, env);
   expect(Object.keys(d).length).toEqual(25);
   expect(o.length).toEqual(6);
 }
 
-main().catch(e => {
-  console.log(e.matcherResult ?  e.matcherResult.message() : e.message);
+try {
+  main();
+} catch (e) {
+  console.log(e.matcherResult ? e.matcherResult.message() : e.message);
   process.exit(1);
-});
+}
