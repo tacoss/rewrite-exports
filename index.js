@@ -1,4 +1,4 @@
-const RE_KEYWORD = /(\bdefault\s+)?\b(let|const|class|function)\s+([$\s\d\w,.=]+)([\s\S]*?)$/i;
+const RE_KEYWORD = /(\bdefault\s+)?\b(let|const|class|function(?:\s*\*)?)\s+(\*?[$\s\d\w,.=]+)([\s\S]*?)$/i;
 const RE_EXPORT = /^(\s*)export(?!\w)\s*([^\n;]*)/gmi;
 const RE_FROM = /\bfrom\s+(["'])([^"']*)\1/gi;
 const RE_DF = /\bdefault(\s+as\s+(\w+))?\b/i;
@@ -45,12 +45,12 @@ function replaceExport(ctx, fn, x, f) {
         return `${left}${symbols[2]} ${vars.map(x => `${x} = ${ctx}.${x}`).join(' = ')} = ${last}${symbols[4]}`;
       }
 
-      if (symbols[2] === 'class' || symbols[2] === 'function') {
-        prefix = prefix.replace(left, `${left}const ${symbols[3].split(/[({\s]+/)[0]} = `);
+      if (symbols[2] === 'class' || symbols[2].includes('function')) {
+        prefix = prefix.replace(left, `${left}const ${symbols[3].split(/[({\s]+/)[0].replace('*', '')} = `);
       }
 
       if (!symbols[1]) {
-        prefix += `.${symbols[3].trim()}`;
+        prefix += `.${symbols[3].trim().replace('*', '')}`;
       }
     }
 

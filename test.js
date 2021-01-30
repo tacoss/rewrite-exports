@@ -52,6 +52,11 @@ const supported = `
 
   export const html = '<a href="#">OK</a>';
 
+  export function* generator1() {}
+  export function * generator2() {}
+  export function *generator3() {}
+  export async function deferred() {}
+
 `;
 
 const expected = `
@@ -104,6 +109,11 @@ const expected = `
 
   const html = module.exports.html = '<a href="#">OK</a>';
 
+  const generator1 = module.exports.generator1 = function* generator1() {}
+  const generator2 = module.exports.generator2 = function * generator2() {}
+  const generator3 = module.exports.generator3 = function *generator3() {}
+  const deferred = module.exports.deferred = async function deferred() {}
+
 `;
 
 const args = [supported];
@@ -132,7 +142,7 @@ function main() {
   });
 
   vm.runInNewContext(expected, env);
-  expect(Object.keys(d).length).toEqual(25);
+  expect(Object.keys(d).length).toEqual(29);
   expect(o.length).toEqual(6);
 }
 
