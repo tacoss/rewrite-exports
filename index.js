@@ -1,5 +1,5 @@
 const RE_KEYWORD = /(\bdefault\s+)?\b(let|const|class|function(?:\s*\*)?)\s+(\*?[$\s\d\w,.=]+)([\s\S]*?)$/i;
-const RE_EXPORT = /^(\s*)export(?!\w)\s*([^\n;]*)/gmi;
+const RE_EXPORT = /^(\s*)export(?!\w)\s*([^]*?)(?=[\n;])/gmi;
 const RE_FROM = /\bfrom\s+(["'])([^"']*)\1/gi;
 const RE_DF = /\bdefault(\s+as\s+(\w+))?\b/i;
 const RE_AS = /\b(\w+)\s+as\s+(\w+)\b/gi;
@@ -90,9 +90,11 @@ function replaceExport(ctx, fn, x, f) {
     }
 
     if (!def && tokens.charAt() === '{') {
-      return `${left}${f ? f('object', mapVars(tokens), ctx, fn, x) : `${x}(${ctx}, ${tokens})`}`;
+      if (tokens.substr(-1) === '}') {
+        return `${left}${f ? f('object', mapVars(tokens), ctx, fn, x) : `${x}(${ctx}, ${tokens})`}`;
+      }
+      return `${left}${ctx} = ${tokens}`;
     }
-
     return `${prefix} = ${tokens}`;
   };
 }

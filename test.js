@@ -57,6 +57,11 @@ const supported = `
   export function *generator3() {}
   export async function deferred() {}
 
+  const value = 42;
+  export {
+    value
+  };
+
 `;
 
 const expected = `
@@ -114,6 +119,11 @@ const expected = `
   const generator3 = module.exports.generator3 = function *generator3() {}
   const deferred = module.exports.deferred = async function deferred() {}
 
+  const value = 42;
+  module.exports = {
+    value
+  };
+
 `;
 
 const args = [supported];
@@ -134,16 +144,14 @@ function main() {
     variable2: null,
   };
 
-  const o = [];
   const d = {};
   Object.defineProperty(env.module, 'exports', {
     get: () => d,
-    set: v => { o.push(v); },
+    set: v => Object.assign(d, v),
   });
 
   vm.runInNewContext(expected, env);
-  expect(Object.keys(d).length).toEqual(29);
-  expect(o.length).toEqual(6);
+  expect(Object.keys(d).length).toEqual(38);
 }
 
 try {
