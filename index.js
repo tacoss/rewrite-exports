@@ -35,7 +35,7 @@ function replaceExport(ctx, fn, x, f) {
         }
 
         if (!symbols[3].includes('=') && symbols[3].includes(',')) {
-          return `${left}${tokens};${symbols[2] === 'let' && f ? f('let', allVars(vars), ctx, fn, x) : `${x}(${ctx},{${vars.join(',')}})`}`;
+          return `${left}${tokens};${symbols[2] === 'let' && f ? f('let', allVars(vars), null, ctx, fn, x) : `${x}(${ctx},{${vars.join(',')}})`}`;
         }
 
         if (vars[0].includes(',')) {
@@ -91,7 +91,7 @@ function replaceExport(ctx, fn, x, f) {
 
     if (!def && tokens.charAt() === '{') {
       if (tokens.includes('}')) {
-        return `${left}${f ? f('object', mapVars(tokens), ctx, fn, x) : `${x}(${ctx},${tokens.replace(/\s+/g, '')})`}`;
+        return `${left}${f ? f('object', mapVars(tokens), null, ctx, fn, x) : `${x}(${ctx},${tokens.replace(/\s+/g, '')})`}`;
       }
       return `${left}${ctx}=${tokens}`;
     }
