@@ -1,5 +1,5 @@
 const RE_KEYWORD = /(\bdefault\s+)?\b(let|const|class|function(?:\s*\*)?)\s+(\*?[$\s\d\w,.=]+)([\s\S]*?)$/i;
-const RE_EXPORT = /^(\s*)export(?!\w)\s*([^]*?)(?=[\n;]|$)/gmi;
+const RE_EXPORT = /(^|\s*)export(?!\w)\s*(\{[^{}]*?\}.*?(?=;\n?|$)|[^]*?(?=[\n;]|$))/gi;
 const RE_FROM = /\bfrom\s+(["'])([^"']*)\1/gi;
 const RE_DF = /\bdefault(\s+as\s+(\w+))?\b/i;
 const RE_AS = /\b(\w+)\s+as\s+(\w+)\b/gi;
@@ -34,19 +34,18 @@ function replaceExport(ctx, fn, x, f) {
           vars = vars.slice(0, vars.length - 1);
         }
 
-        if (!symbols[3].includes('=')) {
-          return `${left}${tokens}; ${symbols[2] === 'let' && f ? f('let', allVars(vars), ctx, fn, x) : `${x}(${ctx}, { ${vars.join(', ')} })`}`;
+        if (!symbols[3].includes('=') && symbols[3].includes(',')) {
+          return `${left}${tokens};${symbols[2] === 'let' && f ? f('let', allVars(vars), ctx, fn, x) : `${x}(${ctx},{${vars.join(',')}})`}`;
         }
 
         if (vars[0].includes(',')) {
           vars = vars[0].split(/\s*,\s*/);
         }
-
-        return `${left}${symbols[2]} ${vars.map(x => `${x} = ${ctx}.${x}`).join(' = ')} = ${last}${symbols[4]}`;
+        return `${left}${symbols[2]} ${vars.map(x => `${x}=${ctx}.${x}`).join('=')}=${last}${symbols[4]}`;
       }
 
       if (symbols[2] === 'class' || symbols[2].includes('function')) {
-        prefix = prefix.replace(left, `${left}const ${symbols[3].split(/[({\s]+/)[0].replace('*', '')} = `);
+        prefix = prefix.replace(left, `${left}const ${symbols[3].split(/[({\s]+/)[0].replace('*', '')}=`);
       }
 
       if (!symbols[1]) {
@@ -57,15 +56,15 @@ function replaceExport(ctx, fn, x, f) {
     const def = tokens.match(RE_DF);
 
     if (tokens.match(RE_FROM)) {
-      const vars = tokens.replace(RE_AS, '$2').replace(RE_FROM, '').trim();
+      const vars = tokens.replace(RE_AS, '$2').replace(RE_FROM, '').replace(/\s+/g, '');
 
-      tokens = tokens.replace(RE_FROM, `= ${fn.replace(/[$]/g, '$&$&')}("$2")`);
-      tokens = tokens.replace(RE_AS, '$1: $2');
+      tokens = tokens.replace(RE_FROM, `=${fn.replace(/[$]/g, '$&$&')}("$2")`);
+      tokens = tokens.replace(RE_AS, '$1:$2');
 
       const req = tokens.split(RE_EQ).pop().trim();
 
       if (vars === '*') {
-        return `${prefix} = ${req}`;
+        return `${prefix}=${req}`;
       }
 
       if (def) {
@@ -73,10 +72,10 @@ function replaceExport(ctx, fn, x, f) {
           prefix += `.${def[2]}`;
         }
 
-        return `${prefix} = ${req}`;
+        return `${prefix}=${req}`;
       }
 
-      return `${left}const ${tokens}; ${f ? f('const', allVars(vars), ctx, fn, x) : `${x}(${ctx}, ${vars})`}`;
+      return `${left}const ${tokens};${f ? f('const', allVars(vars), ctx, fn, x) : `${x}(${ctx},${vars})`}`;
     }
 
     if (def) {
@@ -86,16 +85,16 @@ function replaceExport(ctx, fn, x, f) {
         tokens = tokens.match(RE_AS)[0].split(' ').shift();
       }
     } else {
-      tokens = tokens.replace(RE_AS, '$2: $1');
+      tokens = tokens.replace(RE_AS, '$2:$1');
     }
 
     if (!def && tokens.charAt() === '{') {
-      if (tokens.substr(-1) === '}') {
-        return `${left}${f ? f('object', mapVars(tokens), ctx, fn, x) : `${x}(${ctx}, ${tokens})`}`;
+      if (tokens.includes('}')) {
+        return `${left}${f ? f('object', mapVars(tokens), ctx, fn, x) : `${x}(${ctx},${tokens.replace(/\s+/g, '')})`}`;
       }
-      return `${left}${ctx} = ${tokens}`;
+      return `${left}${ctx}=${tokens}`;
     }
-    return `${prefix} = ${tokens}`;
+    return `${prefix}=${tokens}`;
   };
 }
 
