@@ -65,7 +65,7 @@ function replaceExport(ctx, fn, x, f) {
       const req = tokens.split(RE_EQ).pop().trim();
 
       if (vars === '*') {
-        return f ? f('const', '*', mod, ctx, fn, x) : `${prefix}=${req}`;
+        return `${prefix}=${f ? f('*', req, mod, ctx, fn, x) : req}`;
       }
 
       if (def) {
@@ -73,7 +73,7 @@ function replaceExport(ctx, fn, x, f) {
           prefix += `.${def[2]}`;
         }
 
-        return f ? f('const', 'default', mod, ctx, fn, x) : `${prefix}=${req}`;
+        return `${prefix}=${f ? f('default', req, mod, ctx, fn, x) : req}`;
       }
 
       return `${left}const ${tokens};${f ? f('const', allVars(vars), mod, ctx, fn, x) : `${x}(${ctx},${vars})`}`;
