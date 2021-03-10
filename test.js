@@ -37,6 +37,8 @@ const supported = `
 
   export { y\n} from './ref';
 
+  const RE_EXPORT = 42;
+
 `;
 
 const expected = `
@@ -71,6 +73,8 @@ const expected = `
   Object.assign(module.exports,{value});
 
   const { y\n} =require("./ref");Object.assign(module.exports,{y});
+
+  const RE_EXPORT = 42;
 
 `;
 

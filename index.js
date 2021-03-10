@@ -1,5 +1,5 @@
 const RE_KEYWORD = /(\bdefault\s+)?\b(let|const|class|function(?:\s*\*)?)\s+(\*?[$\s\d\w,.=]+)([\s\S]*?)$/i;
-const RE_EXPORT = /(^|\s*)export(?!\w)\s*(\{[^{}]*?\}.*?(?=;\n?|$)|[^]*?(?=[\n;]|$))/gi;
+const RE_EXPORT = /(^|\s+)export(?!\w)\s*(\{[^{}]*?\}.*?(?=;\n?|$)|[^]*?(?=[\n;]|$))/gi;
 const RE_FROM = /\bfrom\s+(["'])([^"']*)\1/gi;
 const RE_DF = /\bdefault(\s+as\s+(\w+))?\b/i;
 const RE_AS = /\b(\w+)\s+as\s+(\w+)\b/gi;
