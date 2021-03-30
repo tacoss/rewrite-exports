@@ -1,5 +1,5 @@
 
-# rewrite-exports [![Build Status](https://travis-ci.org/tacoss/rewrite-exports.svg?branch=master)](https://travis-ci.org/tacoss/rewrite-exports)
+# rewrite-exports [![Build status](https://github.com/tacoss/rewrite-exports/actions/workflows/testing.yml/badge.svg)](https://github.com/tacoss/rewrite-exports/actions/workflows/testing.yml)
 
 Transforms various `export` statements into `module.exports` definitions, using regular expressions.
 
