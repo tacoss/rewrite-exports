@@ -23,7 +23,7 @@ const supported = `
 
   exported
 
-  export const html = '<a href="#">OK</a>';
+  export const  html = '<a href="#">OK</a>';
 
   export function* generator1() {}
   export function * generator2() {}
@@ -62,7 +62,7 @@ const expected = `
 
   exported
 
-  const html=module.exports.html='<a href="#">OK</a>';
+  const  html =module.exports.html= '<a href="#">OK</a>';
 
   const generator1=module.exports.generator1=function* generator1() {}
   const generator2=module.exports.generator2=function * generator2() {}
@@ -81,20 +81,22 @@ const expected = `
 const args = [supported];
 
 function main() {
+  expect(rExports(...args)).toEqual(expected);
   expect(rExports('export {}')).toEqual('Object.assign(module.exports,{})');
-  expect(rExports('export const x = {\ny:42}')).toEqual('const x=module.exports.x={\ny:42}');
+  expect(rExports('export let  1   =    broken();')).toEqual('let  1   =module.exports.1=    broken();');
+  expect(rExports('export const x = {\ny:42}')).toEqual('const x =module.exports.x= {\ny:42}');
   expect(rExports('export { name1, name2, nameN }')).toEqual('Object.assign(module.exports,{name1,name2,nameN})');
   expect(rExports('export { variable1 as name1, variable2 as name2, nameN }')).toEqual('Object.assign(module.exports,{name1:variable1,name2:variable2,nameN})');
   expect(rExports('export let let1, let2, letN')).toEqual('let let1, let2, letN;Object.assign(module.exports,{let1, let2, letN})');
-  expect(rExports('export let other1 = other2 = otherN')).toEqual('let other1=module.exports.other1=void 0,other2=module.exports.other2=otherN');
+  expect(rExports('export let other1 = other2 = otherN')).toEqual('let other1 =module.exports.other1=void 0, other2 =module.exports.other2= otherN');
   expect(rExports('export function FunctionName() {\n}')).toEqual('const FunctionName=module.exports.FunctionName=function FunctionName() {\n}');
-  expect(rExports('export class ClassName {\n}')).toEqual('const ClassName=module.exports.ClassName=class ClassName {\n}');
+  expect(rExports('export class  ClassName {\n}')).toEqual('const ClassName=module.exports.ClassName=class  ClassName {\n}');
   expect(rExports("export { default as OK } from './src'")).toEqual('module.exports.OK=require("./src")');
   expect(rExports("export { var1, var2, varN } from './src';")).toEqual('const { var1, var2, varN } =require("./src");Object.assign(module.exports,{var1,var2,varN});');
   expect(rExports("export { import1 as extra1, import2 as extra2, extraN } from './src';")).toEqual('const { import1:extra1, import2:extra2, extraN } =require("./src");Object.assign(module.exports,{extra1,extra2,extraN});');
-  expect(rExports('export default function () {  }')).toEqual('module.exports=function () {  }');
-  expect(rExports('export default function func1() {  }')).toEqual('const func1=module.exports=function func1() {  }');
-  expect(rExports(...args)).toEqual(expected);
+  expect(rExports('export default  function   ()    {  }')).toEqual('module.exports=function   ()    {  }');
+  expect(rExports('export default  function   func1()    {  }')).toEqual('const func1=module.exports=function   func1()    {  }');
+  expect(rExports('export let  value, a,  b,    c       = 0;')).toEqual('let  value=module.exports.value=void 0, a=module.exports.a=void 0,  b=module.exports.b=void 0,    c       =module.exports.c= 0;');
 
   const env = {
     require: () => env,
