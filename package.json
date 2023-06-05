@@ -21,6 +21,9 @@
   "bugs": "https://github.com/tacoss/rewrite-exports/issues",
   "author": "Alvaro Cabrera <pateketrueke@gmail.com>",
   "license": "MIT",
+  "engines": {
+    "node": "*"
+  },
   "devDependencies": {
     "expect": "^26.6.2"
   }

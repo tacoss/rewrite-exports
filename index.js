@@ -42,7 +42,7 @@ function replaceExport(ctx, fn, x, f) {
         if (vars[0].includes(',')) {
           vars = vars[0].split(',');
         }
-        return `${left}${symbols[2]}${symbols[3]}${vars.map(x => `${x}=${ctx}.${x.trim()}`).join('=void 0,')}=${last}${symbols[5]}`;
+        return `${left}${symbols[2]}${symbols[3]}${vars.map(x => `${x}=${ctx}.${x.trim()}`).join(`=void 0;${symbols[2]} `)}=${last}${symbols[5]}`;
       }
 
       if (symbols[2] === 'class' || symbols[2].includes('function')) {
