@@ -50,7 +50,7 @@ function replaceExport(ctx, fn, x, f) {
       }
 
       if (!symbols[1]) {
-        prefix += `.${symbols[4].trim().replace('*', '')}`;
+        prefix += `.${symbols[4].split(/[({\s]+/)[0].replace('*', '')}`;
       }
     }
 

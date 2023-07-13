@@ -38,6 +38,8 @@ const supported = `
   export { y\n} from './ref';
 
   const RE_EXPORT = 42;
+  class Bar {}
+  export class Foo extends Bar {}
 
 `;
 
@@ -75,6 +77,8 @@ const expected = `
   const { y\n} =require("./ref");Object.assign(module.exports,{y});
 
   const RE_EXPORT = 42;
+  class Bar {}
+  const Foo=module.exports.Foo=class Foo extends Bar {}
 
 `;
 
@@ -118,7 +122,7 @@ function main() {
   });
 
   vm.runInNewContext(expected, env);
-  expect(Object.keys(d).length).toEqual(22);
+  expect(Object.keys(d).length).toEqual(23);
 }
 
 try {
